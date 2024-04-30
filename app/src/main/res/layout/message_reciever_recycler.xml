@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:orientation="vertical"
+    android:layout_margin="6dp"
+    android:background="@drawable/reciever_message"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/Name_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <ImageView
+            android:id="@+id/image_sender_imageView"
+            android:layout_width="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginEnd="25dp"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/message_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:maxEms="12"
+            android:textColor="@color/black"
+            android:layout_marginStart="28dp"
+            android:layout_marginEnd="12dp"
+            android:text="Hello brother how are you?"/>
+        <TextView
+            android:id="@+id/message_time_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="12dp"
+            android:maxEms="8"
+            android:layout_marginStart="30dp"
+            android:layout_gravity="end"
+            android:text="12:10 AM"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

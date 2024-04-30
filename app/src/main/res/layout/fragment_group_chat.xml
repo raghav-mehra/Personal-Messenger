@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    tools:context=".fragments.GroupChat">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/Group_chat_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:titleTextColor="@color/white"
+        android:background="@color/black"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/Group_chat_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_height="wrap_content"
+            android:background="@drawable/input_message_background"
+            android:orientation="horizontal">
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/fragment_message_edit_text"
+                android:padding="10dp"
+                android:layout_marginBottom="2dp"
+                android:layout_width="355dp"
+                android:background="@drawable/messaging_edit_text_background"
+                android:layout_gravity="bottom"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="normal"
+                android:drawableEnd="@drawable/ic_send_image"
+                android:textColor="@color/black"
+                android:hint="Enter the message"/>
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/message_send_button"
+                android:layout_width="50dp"
+                android:src="@drawable/send"
+                android:layout_marginBottom="2dp"
+                android:layout_gravity="end"
+                android:layout_height="50dp" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+
+
+</androidx.appcompat.widget.LinearLayoutCompat>

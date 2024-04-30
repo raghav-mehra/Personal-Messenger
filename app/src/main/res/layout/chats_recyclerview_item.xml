@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="2dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        tools:ignore="MissingConstraints">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="10dp">
+            <com.mikhaellopez.circularimageview.CircularImageView
+                android:id="@+id/chat_person_profilePhoto"
+                android:layout_width="85dp"
+                android:layout_height="85dp"
+                android:src="@drawable/ic_profile"/>
+            <TextView
+                android:id="@+id/chat_person_name"
+                android:text="Name"
+                android:textColor="@color/black"
+                android:textStyle="normal"
+                android:textSize="28dp"
+                android:maxEms="13"
+                android:ellipsize="end"
+                android:layout_toRightOf="@id/chat_person_profilePhoto"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="5dp"
+                android:layout_width="wrap_content"
+                android:maxLines="1"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/chat_last_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Last message"
+                android:textSize="18dp"
+                android:ellipsize="end"
+                android:layout_alignBottom="@id/chat_person_name"
+                android:layout_marginLeft="6dp"
+                android:layout_marginBottom="-20dp"
+                android:maxLines="1"
+                android:layout_toRightOf="@id/chat_person_profilePhoto" />
+            <TextView
+                android:id="@+id/chat_last_message_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="45dp"
+                android:text="2:10"/>
+            <ImageView
+                android:id="@+id/marked_imageView"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/checked"
+                android:visibility="invisible"
+                android:layout_alignParentEnd="true"/>
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

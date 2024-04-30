@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <androidx.cardview.widget.CardView
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardCornerRadius="2dp"
+        tools:ignore="MissingConstraints">
+        <RelativeLayout
+            android:id="@+id/item_background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="10dp">
+            <com.mikhaellopez.circularimageview.CircularImageView
+                android:id="@+id/contacts_person_profilePhoto"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
+                android:src="@drawable/ic_profile"/>
+            <TextView
+                android:id="@+id/contacts_person_name"
+                android:text="@string/hint_username"
+                android:textStyle="normal"
+                android:textColor="@color/black"
+                android:textSize="18dp"
+                android:maxEms="13"
+                android:ellipsize="end"
+                android:layout_toRightOf="@id/contacts_person_profilePhoto"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="5dp"
+                android:layout_width="wrap_content"
+                android:maxLines="1"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/contacts_email"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/hint_email"
+                android:ellipsize="end"
+                android:layout_alignBottom="@id/contacts_person_name"
+                android:layout_marginLeft="6dp"
+                android:layout_marginBottom="-20dp"
+                android:maxLines="1"
+                android:layout_toRightOf="@id/contacts_person_profilePhoto" />
+            <ImageView
+                android:id="@+id/marked_imageView"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginEnd="50dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/tick_circle_svgrepo_com"
+                android:visibility="invisible"
+                android:layout_alignParentEnd="true"/>
+            <ImageView
+                android:id="@+id/options_ImageView"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/options_vertical_svgrepo_com"/>
+
+
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</androidx.constraintlayout.widget.ConstraintLayout>

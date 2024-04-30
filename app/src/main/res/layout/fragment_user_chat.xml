@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/c19"
+    android:layout_height="match_parent"
+    tools:context=".fragments.Messaging">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/messaging_toolbar"
+        android:layout_width="match_parent"
+        android:background="@color/black"
+        app:titleTextColor="@color/white"
+        app:menu="@menu/messaging_menu"
+        android:layout_alignParentTop="true"
+        android:layout_height="wrap_content">
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="wrap_content"
+            android:orientation="horizontal"
+            android:layout_height="match_parent">
+            <ImageView
+                android:id="@+id/toolbar_back"
+                android:layout_gravity="center"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/back_svgrepo_com"/>
+            <ImageView
+                android:id="@+id/toolbar_profile_pic"
+                android:layout_marginLeft="15dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
+                android:src="@drawable/ic_profile"/>
+            <TextView
+                android:id="@+id/toolbar_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="User"
+                android:layout_gravity="center"
+                android:layout_marginLeft="8dp"
+                android:textSize="21sp"
+                android:textColor="@color/white"/>
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.Toolbar>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/message_recycler"
+        android:layout_width="match_parent"
+        android:layout_marginTop="55dp"
+        android:layout_marginBottom="50dp"
+        android:layout_height="wrap_content"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content"
+        android:background="@drawable/input_message_background"
+        android:orientation="horizontal">
+        <androidx.appcompat.widget.AppCompatEditText
+            android:id="@+id/fragment_message_edit_text"
+            android:padding="10dp"
+            android:background="@drawable/messaging_edit_text_background"
+            android:layout_width="355dp"
+            android:layout_gravity="bottom"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:layout_marginBottom="2dp"
+            android:textStyle="normal"
+            android:drawableEnd="@drawable/ic_send_image"
+            android:textColor="@color/black"
+            android:hint="Type a message..."/>
+      <com.google.android.material.floatingactionbutton.FloatingActionButton
+          android:id="@+id/message_send_button"
+          android:layout_width="50dp"
+          android:layout_marginLeft="3dp"
+          android:src="@drawable/send"
+          android:layout_gravity="end"
+          android:layout_height="50dp" />
+    </LinearLayout>
+
+
+</RelativeLayout>

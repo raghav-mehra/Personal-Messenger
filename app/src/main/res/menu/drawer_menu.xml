@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+    <group>
+    </group>
+<group android:checkableBehavior="single">
+
+    <item android:id="@+id/chat_nav"
+        android:icon="@drawable/chats_dots_svgrepo_com"
+        android:title="Chats"/>
+
+
+</group>
+    <item android:title="@string/app_name">
+        <menu>
+            <item android:id="@+id/nav_contacts"
+                android:icon="@drawable/ic_contacts"
+                android:title="Contacts"/>
+            <item android:id="@+id/profile_nav"
+                android:icon="@drawable/profile_svgrepo_com"
+                android:title="Profile"/>
+            <item android:id="@+id/send_nav"
+                android:icon="@drawable/group_svgrepo_com"
+                android:title="New Group"/>
+            <item android:id="@+id/share_nav"
+                android:icon="@drawable/people_nearby_svgrepo_com"
+                android:title="Friends"/>
+
+        </menu>
+    </item>
+</menu>

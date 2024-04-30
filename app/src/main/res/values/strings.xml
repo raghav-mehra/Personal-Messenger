@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">Personal Massenger</string>
+    <string name="text_sing_up_button">Sign Up</string>
+    <string name="text_view_go_to_profile">Go to profile</string>
+    <string name="text_sign_in_button">SIGN IN</string>
+    <string name="hint_confirm_password">Confirm Password</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_username">User Name</string>
+    <string name="text_view_register">Register Account</string>
+    <string name="continue_button">Continue</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="navigation_drawer_open">Open Navigation Drawer</string>
+    <string name="navigation_drawer_close">Close Navigatoin Drawer</string>
+    <string name="hint_name">Name</string>
+    <string name="save">Save</string>
+    <string name="Image">Image</string>
+    <string name="document">Document</string>
+    <string name="Edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="sign_out">Sign out</string>
+    <string name="clearchat">Clear chat</string>
+    <string name="block">Block</string>
+</resources>
