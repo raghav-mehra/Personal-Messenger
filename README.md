@@ -5,6 +5,7 @@ TECHNOLOGIES used:
 2. Firebase for Realtime communication
 3. SQLite for offline storage of messages and contacts
 4. XML
+
 This app contains following FEATURES:
 (i)  Single user to user chatting. You can send images to a user.
 (ii) Highlights(Story) uploading and viewing (of saved contacts).
