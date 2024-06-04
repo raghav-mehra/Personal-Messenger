@@ -1,6 +1,7 @@
 package com.example.personalmassenger
 
 import Utils.Constants
+import Utils.FirebaseUtil
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -19,14 +20,14 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.messaging.FirebaseMessaging
 
 
-class MainActivity : AppCompatActivity(), Communicator {
-    lateinit var viewModel:NewViewModel
+class MainActivity : AppCompatActivity(), Communicator,MainToolbar {
     lateinit var chatadapter:ChatsRecyclerViewAdapter
+    lateinit var homeFragment:MainFragment
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_container)
         val transaction = this.supportFragmentManager.beginTransaction()
-        val homeFragment = MainFragment()
+        homeFragment = MainFragment()
 //        viewModel= ViewModelProvider(this).get(NewViewModel::class.java)
 //        viewModel.chatChanges.observe(this, Observer {
 //            Chats().onResume()
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity(), Communicator {
 //                bundle?.getString(Constants.KEY_EMAIL).toString()
 //            )
 //        }
-//        //getFCMToken()
+        getFCMToken()
 //        else {
             transaction.replace(R.id.main_fragment_container, homeFragment)
             transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -54,17 +55,17 @@ class MainActivity : AppCompatActivity(), Communicator {
     private fun getFCMToken() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
+                FirebaseUtil.currentUserDetails().update(Constants.KEY_TOKEN,task.result.toString())
                 Log.i("Token", task.result)
             }
         }
     }
 
-    override fun passData(userId:String,userName:String, email: String,adapter: ChatsRecyclerViewAdapter) {
+    override fun passData(userId:String,userName:String, email: String) {
         val bundle = Bundle()
         bundle.putString(Constants.KEY_ID, userId)
         bundle.putString(Constants.KEY_USERNAME, userName)
         bundle.putString(Constants.KEY_EMAIL, email)
-        chatadapter=adapter
         val transaction = this.supportFragmentManager.beginTransaction()
         val messagingFragment = Messaging()
         messagingFragment.arguments = bundle
@@ -86,9 +87,20 @@ class MainActivity : AppCompatActivity(), Communicator {
     }
 
     override fun refreshChats() {
-        chatadapter.refresh()
+       chatadapter.refresh()
     }
 
+    override fun passChatsAdapterReference(adapter: ChatsRecyclerViewAdapter) {
+        chatadapter=adapter
+    }
+
+    override fun itemSelected() {
+        homeFragment.updateToolbar()
+    }
+
+    override fun deleteSelectedItems() {
+        chatadapter.deleteSelectedChats()
+    }
 //    override fun onBackPressed() {
 //        val fragment =
 //            this.supportFragmentManager.findFragmentById(R.id.main_fragment_container)
@@ -114,5 +126,10 @@ class MainActivity : AppCompatActivity(), Communicator {
 //        }
 //        return super.onOptionsItemSelected(item)
 //    }
+    override fun onBackPressed() {
+        super.onBackPressed()
+        homeFragment.resetToolbar()
+
+    }
 
 }

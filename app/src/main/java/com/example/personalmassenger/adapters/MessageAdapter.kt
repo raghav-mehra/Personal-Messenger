@@ -65,6 +65,10 @@ class MessageAdapter():RecyclerView.Adapter<MessageAdapter.viewHolder>() {
     fun getLastPosition():Int{
         return list.size-1
     }
+    fun clearChat(){
+        list.clear()
+        notifyDataSetChanged()
+    }
     inner class viewHolder(view:View):RecyclerView.ViewHolder(view){
         val textviewMessage:TextView=view.findViewById(R.id.message_textview)
         val textviewTime:TextView=view.findViewById(R.id.message_time_textview)

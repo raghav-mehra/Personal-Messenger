@@ -1,5 +1,6 @@
 package com.example.personalmassenger.adapters
 
+import Utils.FirebaseUtil
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,6 +22,8 @@ class ContactsRecyclerViewAdapter(): RecyclerView.Adapter<ContactsRecyclerViewAd
     private var contactList = mutableListOf<Contact>()
     var onItemClick: ((Contact) ->Unit)?=null
     var onLongClickItem: ((Contact) ->Unit)?=null
+    var deleteContact:((Contact)->Unit)?=null
+    var editContact:((Contact)->Unit)?=null
     private var selectedItems= mutableSetOf<Int>()
     private var storageReference:StorageReference=FirebaseStorage.getInstance().reference
 
@@ -43,15 +46,17 @@ class ContactsRecyclerViewAdapter(): RecyclerView.Adapter<ContactsRecyclerViewAd
                 when(item.itemId){
                     R.id.action_Delete->{
                         contactList.removeAt(position)
+                        deleteContact?.invoke(contact)
                         updateContactList()
                     }
                     R.id.action_Edit->{
-
+                        editContact?.invoke(contact)
+                        contactList.removeAt(position)
                     }
                 }
                 true
             })
-            popupMenu.setForceShowIcon(true)
+          //  popupMenu.setForceShowIcon(true)
             popupMenu.show()
         }
         holder.itemView.setOnClickListener {
@@ -73,7 +78,7 @@ class ContactsRecyclerViewAdapter(): RecyclerView.Adapter<ContactsRecyclerViewAd
             true
         }
 
-        storageReference.child("profile_photos/${contact.uid}").getBytes(1024*1024).addOnSuccessListener {
+        FirebaseUtil.profilePicReference(contact.email).getBytes(1024*1024).addOnSuccessListener {
             holder.profilePic.setImageBitmap(BitmapFactory.decodeByteArray(it,0,it.size))
         }
       //  holder.profilePic.setImageURI(contact.profilePhoto)

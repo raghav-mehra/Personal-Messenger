@@ -1,6 +1,7 @@
 package com.example.personalmassenger.fragments
 
 import Utils.Constants
+import Utils.FirebaseUtil
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -14,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.personalmassenger.Communicator
+import com.example.personalmassenger.MainToolbar
 import com.example.personalmassenger.R
 import com.example.personalmassenger.adapters.ChatsRecyclerViewAdapter
 import com.example.personalmassenger.localDatabse.localDbHandler
@@ -30,11 +32,8 @@ class Chats : Fragment() {
 
     private lateinit var chatRecyclerView: RecyclerView
     private lateinit var chatRecyclerAdapter: ChatsRecyclerViewAdapter
-    private lateinit var localDb:localDbHandler
-    private var db=FirebaseFirestore.getInstance()
-    private var chatsReference: CollectionReference =db.collection("Chats").document(FirebaseAuth.getInstance().currentUser?.uid!!).collection("Message")
     private lateinit var communicator: Communicator
-
+    private lateinit var mainToolbar: MainToolbar
 
     override fun onResume() {
         chatRecyclerAdapter.refresh()
@@ -44,23 +43,26 @@ class Chats : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         val view=inflater.inflate(R.layout.fragment_chats, container, false)
+        communicator=activity as Communicator
+        mainToolbar=activity as MainToolbar
         chatRecyclerAdapter=ChatsRecyclerViewAdapter(activity?.applicationContext!!)
         chatRecyclerView= view.findViewById(R.id.chats_recyclerview)
         chatRecyclerView.adapter=chatRecyclerAdapter
         chatRecyclerView.layoutManager=LinearLayoutManager(context)
-
-
-
-        // chatRecyclerAdapter.updateChatList(chatList)
+        communicator.passChatsAdapterReference(chatRecyclerAdapter)
 
         chatRecyclerAdapter.onItemClick={
-            communicator=activity as Communicator
-            communicator.passData(it.uid,it.name,it.email,chatRecyclerAdapter)
+            Log.d("chatINfoEmail",it.email)
+            FirebaseUtil.userDetails(it.email).get().addOnSuccessListener {doc->
+                communicator.passData(doc.getString(Constants.KEY_UID).toString(),it.name,it.email)
+            }
+        }
+        chatRecyclerAdapter.onLongPressItemClick={
+            mainToolbar.itemSelected()
         }
         Log.d("onCreate","called")
-        chatsReference.orderBy(Constants.KEY_TIME_STAMP).addSnapshotListener { snapshot, error ->
+        FirebaseUtil.currentUserChats().orderBy(Constants.KEY_TIME_STAMP).addSnapshotListener { snapshot, error ->
             error.let {
                 Log.d("Error",it.toString())
             }
@@ -84,6 +86,9 @@ class Chats : Fragment() {
         return view
 
     }
+
+
+
 
 
 }

@@ -1,6 +1,7 @@
 package com.example.personalmassenger.fragments
 
 import Utils.Constants
+import Utils.FirebaseUtil
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -32,32 +33,28 @@ class Profile : Fragment() {
     private lateinit var profilePhoto:CircularImageView
     private lateinit var nameEditText: EditText
     private lateinit var toolbar: Toolbar
-    private var auth=FirebaseAuth.getInstance()
-    private var userReference=FirebaseFirestore.getInstance().collection("Users").document(auth.currentUser?.email!!)
-    private var profilePicReference=FirebaseStorage.getInstance().reference
     private val register=registerForActivityResult(ActivityResultContracts.PickVisualMedia()){
         if (it!=null){
             uploadImage(it)
         }
     }
     private fun uploadImage(uri:Uri){
-        val userId=auth.currentUser?.uid!!
-        profilePicReference.child("profile_photos/$userId").putFile(uri).addOnSuccessListener {
+        val userId=FirebaseUtil.currentUserEmail()
+        FirebaseUtil.profilePicReference(userId).putFile(uri).addOnSuccessListener {
             it.storage.downloadUrl.addOnSuccessListener {
-                userReference.update(Constants.KEY_PROFILE_PHOTO,it.toString())
+                FirebaseUtil.currentUserDetails().update(Constants.KEY_PROFILE_PHOTO,it.toString())
                 profilePhoto.setImageURI(uri)
             }
         }
     }
     private fun uploadImage(bitmap:Bitmap?){
         val baos= ByteArrayOutputStream()
-        val userId=auth.currentUser?.uid!!
+        val userId=FirebaseUtil.currentUserEmail()
         bitmap?.compress(Bitmap.CompressFormat.JPEG,50,baos)
         val path = MediaStore.Images.Media.insertImage(activity?.contentResolver, bitmap, "Title", null)
         //    val image=baos.toByteArray()
         val imageUri= Uri.parse(path)
-
-        profilePicReference.child("profile_photos/$userId").putFile(Uri.parse(path)).addOnSuccessListener {
+        FirebaseUtil.profilePicReference(userId).putFile(Uri.parse(path)).addOnSuccessListener {
             profilePhoto.setImageBitmap(bitmap)
 //            profilePicReference.downloadUrl.addOnSuccessListener {
 //                userReference.update("profilePhoto",it.toString())
@@ -81,18 +78,20 @@ class Profile : Fragment() {
         profilePhoto=view.findViewById(R.id.profile_profile_pic)
         nameEditText=view.findViewById(R.id.profile_user_name)
         toolbar=view.findViewById(R.id.profile_toolbar)
-        profilePicReference.child("profile_photos/${auth.currentUser?.uid!!}").getBytes(1024*1024).addOnSuccessListener {
+        FirebaseUtil.profilePicReference(FirebaseUtil.currentUserEmail()).getBytes(1024*1024).addOnSuccessListener {
             profilePhoto.setImageBitmap(BitmapFactory.decodeByteArray(it,0,it.size))
         }
         profilePhoto.setOnClickListener {
             register.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
-        userReference.get().addOnSuccessListener {
+        FirebaseUtil.currentUserDetails().get().addOnSuccessListener {
            nameEditText.setText(it.getString(Constants.KEY_USERNAME))
         }
         saveButton.setOnClickListener {
             if (nameEditText.text.trim().isNotEmpty()){
-                userReference.update(Constants.KEY_USERNAME,nameEditText.text)
+                FirebaseUtil.currentUserDetails().update(Constants.KEY_USERNAME,nameEditText.text.toString()).addOnSuccessListener {
+                    Toast.makeText(activity,"Successfully updated",Toast.LENGTH_SHORT).show()
+                }
             }
         }
         return view

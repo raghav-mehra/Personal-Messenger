@@ -57,9 +57,11 @@ class Highlights : Fragment() {
         recyclerView.adapter=adapter
         recyclerView.layoutManager=LinearLayoutManager(activity)
         checkForHighlights()
+
         addStoryButton.setOnClickListener {
             uploadStory()
         }
+
         myStatusDp.setOnClickListener {
             if(portionsCount>0) {
                 communicator = activity as Communicator
@@ -67,11 +69,10 @@ class Highlights : Fragment() {
             }
         }
         adapter.onItemClick={
-
             communicator=activity as Communicator
             communicator.passStoryData(it.name,it.email)
-
         }
+
         userReference.document(auth?.email!!).collection("Story").get().addOnSuccessListener   { myStories->
             var cnt=0
             for(story in myStories!!){
@@ -83,7 +84,6 @@ class Highlights : Fragment() {
                 }
                 else{
                     userReference.document(auth?.email!!).collection("Story").document(story.id).delete()
-
                 }
             }
             portionsCount=cnt
@@ -95,17 +95,17 @@ class Highlights : Fragment() {
     }
 
     private fun uploadStory(){
-        myCircularStatusView.visibility=View.INVISIBLE
         val intent=Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         intent.setType("image/* video/*")
         startActivityForResult(intent,2)
     }
+
     private fun showStoryLoading(){
         myCircularStatusView.visibility=View.INVISIBLE
         myCircularStatusView.invalidate()
         storyProgress.visibility=View.VISIBLE
-
     }
+
     private fun hideStoryLoading(){
         storyProgress.visibility=View.INVISIBLE
         myCircularStatusView.visibility=View.VISIBLE

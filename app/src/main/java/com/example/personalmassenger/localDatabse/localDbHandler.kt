@@ -72,7 +72,7 @@ class localDbHandler(context: Context) :
         val db = this.writableDatabase
         val values = ContentValues()
         values.put(Constants.KEY_NAME, contact.userName)
-        values.put(Constants.KEY_TABLE_NAME,contact.uid)
+        values.put(Constants.KEY_TABLE_NAME,Constants.getTableName(contact.email))
         values.put(Constants.KEY_EMAIL, contact.email)
         db.insert(Constants.TABLE_NAME_CONTACTS, null, values)
         contactName[contact.uid]=contact.userName
@@ -154,28 +154,31 @@ class localDbHandler(context: Context) :
     private fun fetchLastRow(tableName: String): ChatInfo {
         val db = this.writableDatabase
         val selectAll = "SELECT * FROM ${tableName}"
-
         val cursor = db.rawQuery(selectAll, null)
-        val name=contactName[tableName].toString()
-
         cursor.moveToLast()
+        val name=if(contactName[tableName]!=null) contactName[tableName].toString() else getEmail(tableName)
+
         val info=ChatInfo(
             name,
             "",
             Pair(cursor.getString(2), cursor.getString(3)),
-            cursor.getString(4),tableName
+            tableName+"@gmail.com",cursor.getString(4)
         )
 
         return info
     }
+    fun deleteTableRecord(tableName: String){
+        val db=this.writableDatabase
+        db.delete(tableName,null,null)
+    }
 
-    fun getContact(id: Int): Contact {
+    fun getContact(uid: String): Contact {
         val db = this.writableDatabase
         val cursor = db.query(
             Constants.TABLE_NAME_CONTACTS,
-            arrayOf(Constants.KEY_ID, Constants.KEY_NAME, Constants.KEY_PHONE_NUMBER),
-            Constants.KEY_ID + "=?",
-            arrayOf(id.toString()),
+            arrayOf(Constants.KEY_ID, Constants.KEY_NAME, Constants.KEY_TABLE_NAME,Constants.KEY_EMAIL),
+            Constants.KEY_TABLE_NAME + "=?",
+            arrayOf(uid),
             null,
             null,
             null,
@@ -183,6 +186,26 @@ class localDbHandler(context: Context) :
         )
         cursor?.moveToFirst()
         return Contact(cursor.getString(1), "", cursor.getString(2),cursor.getString(3))
+    }
+    fun getEmail(uid:String): String{
+        val db = this.writableDatabase
+        val cursor = db.query(
+            uid,
+            arrayOf(Constants.KEY_ID, Constants.KEY_SENDER_ID, Constants.KEY_MESSAGE,Constants.KEY_TIME_STAMP,Constants.KEY_EMAIL,Constants.KEY_IMAGEPATH),
+            Constants.KEY_SENDER_ID + "=?",
+            arrayOf(uid),
+            null,
+            null,
+            null,
+            null
+        )
+        cursor?.moveToFirst()
+        return try {
+            cursor.getString(4)
+        } catch (e:Exception){
+            "Unknown"
+        }
+
     }
 
     fun getContactsCount(): Int {
@@ -199,8 +222,13 @@ class localDbHandler(context: Context) :
         values.put(Constants.KEY_NAME, contact.userName)
         values.put(Constants.KEY_EMAIL, contact.email)
         return db.update(
-            Constants.TABLE_NAME_CONTACTS, values, Constants.KEY_ID + "=?",
-            arrayOf(contact.email.toString())
+            Constants.TABLE_NAME_CONTACTS, values, Constants.KEY_TABLE_NAME + "=?",
+            arrayOf(contact.uid)
         )
     }
+    fun deleteContact(contact: Contact){
+        val db=this.writableDatabase
+        db.execSQL("delete from "+"${Constants.TABLE_NAME_CONTACTS}"+" where ${Constants.KEY_EMAIL}= '${contact.email}'")
+    }
+
 }

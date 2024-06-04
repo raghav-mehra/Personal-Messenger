@@ -1,7 +1,9 @@
 package com.example.personalmassenger.fragments
 
 import Utils.Constants
+import Utils.FirebaseUtil
 import android.annotation.SuppressLint
+import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -20,6 +22,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AlertDialogLayout
 import androidx.appcompat.widget.Toolbar
 import androidx.compose.runtime.currentComposer
 import androidx.lifecycle.ViewModelProvider
@@ -38,6 +42,7 @@ import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.mikhaellopez.circularimageview.CircularImageView
 import com.squareup.picasso.Picasso
 import model.ChatInfo
 import model.Message
@@ -54,14 +59,14 @@ class Messaging : Fragment() {
     private lateinit var messageSendButton: FloatingActionButton
     private lateinit var toolbar_title:TextView
     private lateinit var toolbar:Toolbar
-    private lateinit var toolbar_profile_pic:ImageView
-    private lateinit var db: FirebaseFirestore
-    private  var storageReference:StorageReference= FirebaseStorage.getInstance().reference
-    private lateinit var secondPersonReference: CollectionReference
-    private lateinit var myReference: CollectionReference
+    private lateinit var toolbar_backButton:ImageView
+    private lateinit var toolbar_profile_pic:CircularImageView
+    private val currentUserId:String=FirebaseUtil.currentUserId()
+    private val currentUserEmail:String=FirebaseUtil.currentUserEmail()
     private lateinit var localDb:localDbHandler
-    private lateinit var auth: FirebaseAuth
-    lateinit var viewModel: NewViewModel
+    private lateinit var receiverId:String
+    private lateinit var receiverEmail:String
+    private lateinit var userTableName:String
     private val register=registerForActivityResult(ActivityResultContracts.PickVisualMedia()){
         if (it!=null){
         uploadImage(it)
@@ -73,13 +78,11 @@ class Messaging : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        viewModel= ViewModelProvider(this).get(NewViewModel::class.java)
-        val receiverId = arguments?.getString(Constants.KEY_ID).toString()
-        val receiverEmail=arguments?.getString(Constants.KEY_EMAIL).toString()
+        receiverEmail=arguments?.getString(Constants.KEY_EMAIL).toString()
+        receiverId = arguments?.getString(Constants.KEY_ID).toString()
         val view = inflater.inflate(R.layout.fragment_user_chat, container, false)
-        val messageList=localDbHandler(activity?.applicationContext!!).getFullChat(receiverId)
-        Log.d("receiverEmail",receiverEmail)
-        auth = FirebaseAuth.getInstance()
+        userTableName=Constants.getTableName(receiverEmail)
+        val messageList=localDbHandler(activity?.applicationContext!!).getFullChat(userTableName)
         recyclerview = view.findViewById(R.id.message_recycler)
         localDb=localDbHandler(activity?.applicationContext!!)
         messageEditText = view.findViewById(R.id.fragment_message_edit_text)
@@ -89,10 +92,10 @@ class Messaging : Fragment() {
         toolbar=view.findViewById(R.id.messaging_toolbar)
         toolbar_title=view.findViewById(R.id.toolbar_user_name)
         toolbar_title.text=arguments?.getString(Constants.KEY_USERNAME)
+        toolbar_backButton=view.findViewById(R.id.toolbar_back)
         recyclerview.adapter = messageAdapter
         val manager=LinearLayoutManager(activity)
         recyclerview.layoutManager = manager
-        db = FirebaseFirestore.getInstance()
         messageAdapter.updateMessages(messageList)
         messageAdapter.registerAdapterDataObserver(object:AdapterDataObserver(){
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
@@ -100,14 +103,24 @@ class Messaging : Fragment() {
                 recyclerview.smoothScrollToPosition(itemCount-1)
             }
         })
-//        db.collection("Users").document("raghav@gmail.com").get().addOnSuccessListener{
-//            val newUrl=it.getString(Constants.KEY_PROFILE_PHOTO).toString()
-//            Log.d("url",newUrl)
-//            if (newUrl.isNotEmpty()){
-//            toolbar_profile_pic.setImageBitmap(BitmapFactory.decodeStream(URL(newUrl).openStream()))
-//            }
-//            //Picasso.get().load(newUrl).into(toolbar_profile_pic)
-//        }
+        FirebaseUtil.profilePicReference(receiverEmail).getBytes(1024*1024).addOnSuccessListener {
+            toolbar_profile_pic.setImageBitmap(BitmapFactory.decodeByteArray(it,0,it.size))
+        }
+        toolbar_backButton.setOnClickListener {
+            fragmentManager?.popBackStack()
+        }
+        toolbar.setOnMenuItemClickListener {
+            when(it.itemId){
+                R.id.action_clearchat->{
+                    alertDialog()
+                    true
+                }
+
+                else -> {
+                    true
+                }
+            }
+        }
         recyclerview.scrollToPosition(messageList.size-1)
         messageSendButton.setOnClickListener {
             sendMessage()
@@ -140,19 +153,12 @@ class Messaging : Fragment() {
             }
             false
         }
-        secondPersonReference =
-            db.collection("Chats").document(receiverId)
-                .collection("Message")
 
-        myReference = db.collection("Chats").document(auth.currentUser!!.uid).collection("Message")
-
-        myReference.whereEqualTo(Constants.KEY_SENDER_ID,receiverId).orderBy(Constants.KEY_TIME_STAMP).addSnapshotListener { snapshot, error ->
-
+        FirebaseUtil.currentUserChats().whereEqualTo(Constants.KEY_SENDER_ID,receiverId).orderBy(Constants.KEY_TIME_STAMP).addSnapshotListener { snapshot, error ->
             error?.let {
                 Toast.makeText(activity,it.message,Toast.LENGTH_SHORT).show()
                 Log.d("snapshot error: ",it.message.toString())
             }
-
             snapshot?.let {
                 for(dc in it.documentChanges){
                     val receivedMessage= dc.document.get(Constants.KEY_MESSAGE)
@@ -163,7 +169,7 @@ class Messaging : Fragment() {
                     if(dc.type == DocumentChange.Type.REMOVED){
                         continue
                     }
-                    localDb.addMessage(receiverId,Message(
+                    localDb.addMessage(userTableName,Message(
                         receiverId,
                         receivedMessage.toString(),
                         receivedTime.toString(),receivedEmail.toString(),receivedImagePath
@@ -175,9 +181,7 @@ class Messaging : Fragment() {
                             receivedTime.toString(),receivedEmail.toString(),receivedImagePath
                         )
                     )
-                    myReference.document(dc.document.id).delete()
-                    viewModel.chatChanges.value = ++viewModel.initial
-
+                    FirebaseUtil.currentUserChats().document(dc.document.id).delete()
                 }
             }
         }
@@ -185,8 +189,8 @@ class Messaging : Fragment() {
     }
 
     private fun sendMessage() {
-        val receiverId = arguments?.getString(Constants.KEY_ID).toString()
         val message = messageEditText.text.toString().trim()
+        Log.d("receiverId",receiverId)
         if (message.isEmpty()) {
             messageEditText.error = "Enter some message to send"
         } else {
@@ -195,13 +199,13 @@ class Messaging : Fragment() {
             val minute = calender.get(Calendar.MINUTE)
             val timeStamp = "${calender.get(Calendar.DATE)} $hour:$minute"
             val messageObj = mutableMapOf<String, String>().also {
-                it[Constants.KEY_SENDER_ID] = auth.currentUser?.uid!!.toString()
+                it[Constants.KEY_SENDER_ID] = currentUserId
                 it[Constants.KEY_MESSAGE] = message
                 it[Constants.KEY_TIME_STAMP] = timeStamp
-                it[Constants.KEY_EMAIL]= auth.currentUser?.email!!
+                it[Constants.KEY_EMAIL]= currentUserEmail
                 it[Constants.KEY_IMAGEPATH]="null"
             }
-            secondPersonReference.add(messageObj).addOnSuccessListener {
+            FirebaseUtil.userChats(receiverId).add(messageObj).addOnSuccessListener {
                 val senderMessage= Message(
                     messageObj[Constants.KEY_SENDER_ID].toString(),
                     messageObj[Constants.KEY_MESSAGE].toString(),
@@ -209,16 +213,13 @@ class Messaging : Fragment() {
                     messageObj[Constants.KEY_EMAIL].toString(),
                     messageObj[Constants.KEY_IMAGEPATH].toString()
                 )
-                localDb.addMessage(receiverId,senderMessage)
+                localDb.addMessage(userTableName,senderMessage)
                 messageAdapter.addMessage(senderMessage)
                 recyclerview.smoothScrollToPosition(messageAdapter.getLastPosition())
                 messageEditText.text.clear()
-                viewModel.chatChanges.value = ++viewModel.initial
-                Log.d("value",viewModel.chatChanges.value.toString())
+
             }
-
         }
-
     }
 
     override fun onDestroy() {
@@ -228,33 +229,31 @@ class Messaging : Fragment() {
     }
     private fun uploadImage(uri:Uri?){
         val receiverId = arguments?.getString(Constants.KEY_ID).toString()
-        val userId=auth.currentUser?.uid!!
+        val userId=FirebaseUtil.currentUserId()
 //        val mediaNum=db.collection("Chats").document(receiverId)
 //            .collection("MediaNumber").get().addOnSuccessListener {
 //                it.documents.get()
 //            }
         val imagePath="chat_images/$userId/${System.currentTimeMillis()}"
-        storageReference.child(imagePath).putFile(uri!!).addOnSuccessListener {
+        FirebaseUtil.getStorageReference().child(imagePath).putFile(uri!!).addOnSuccessListener {
             val calender = Calendar.getInstance()
             val hour = calender.get(Calendar.HOUR_OF_DAY)
             val minute = calender.get(Calendar.MINUTE)
             val timeStamp = "$hour:$minute"
             val messageObj = mutableMapOf<String, String>().also {
-                it[Constants.KEY_SENDER_ID] =auth.currentUser?.uid!!.toString()
+                it[Constants.KEY_SENDER_ID] =currentUserId
                 it[Constants.KEY_MESSAGE] = ""
                 it[Constants.KEY_TIME_STAMP] = timeStamp
-                it[Constants.KEY_EMAIL]= auth.currentUser?.email!!
+                it[Constants.KEY_EMAIL]= currentUserEmail
                 it[Constants.KEY_IMAGEPATH]=imagePath
             }
-
-            secondPersonReference.add(messageObj)
-
-            localDb.addMessage(receiverId, Message(auth.currentUser?.uid!!,"",timeStamp,
-                auth.currentUser?.email!!,imagePath
+            FirebaseUtil.userChats(receiverId).add(messageObj)
+            localDb.addMessage(userTableName, Message(currentUserId,"",timeStamp,
+                currentUserEmail,imagePath
             ))
 
-            messageAdapter.addMessage(Message(auth.currentUser?.uid!!,"",timeStamp,
-                auth.currentUser?.email!!,imagePath
+            messageAdapter.addMessage(Message(currentUserId,"",timeStamp,
+                currentUserEmail,imagePath
             ))
 
 //            storageReference.downloadUrl.addOnSuccessListener {
@@ -266,7 +265,20 @@ class Messaging : Fragment() {
         }
 
     }
-
+    private fun alertDialog(){
+        val alertDialog= AlertDialog.Builder(view?.context!!)
+        alertDialog.setTitle("Confirm Deletion")
+        .setMessage("All chat with this user will be deleted. This action cannot be undone. Delete chat?")
+        .setIcon(R.drawable.warning_svgrepo_com)
+        .setPositiveButton("Yes"){dialog,_->
+                localDb.deleteTableRecord(userTableName)
+                messageAdapter.clearChat()
+                dialog.dismiss()
+        }
+       .setNegativeButton("No"){dialog,_->
+           dialog.dismiss()
+        }.create().show()
+    }
 }
 
 

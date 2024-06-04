@@ -26,7 +26,6 @@ class SplashActivity : AppCompatActivity() {
         val activityIntent=Intent(this@SplashActivity,SignUpActivity::class.java)
       //  getToken()
         if(intent.extras!=null){
-
             val userEmail= intent.extras!!.getString(Constants.KEY_EMAIL).toString()
             Log.d("Push Notification",userEmail)
             FirebaseFirestore.getInstance().collection("Users").document(userEmail).get().addOnSuccessListener {
@@ -42,8 +41,6 @@ class SplashActivity : AppCompatActivity() {
         anim=AnimationUtils.loadAnimation(this,R.anim.splash_1)
         imageGif.animation=anim
         Handler(Looper.getMainLooper()).postDelayed({
-
-
             mediaPlayer.start()
             startActivity(activityIntent)
             finish()

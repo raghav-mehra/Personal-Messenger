@@ -13,9 +13,7 @@
         android:layout_height="100dp"
         android:layout_marginBottom="10dp"
         android:src="@drawable/ic_profile" />
-<androidx.cardview.widget.CardView
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:orientation="vertical"
@@ -25,16 +23,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
+            android:textColor="@color/black"
             android:text="Name" />
 
         <TextView
             android:id="@+id/nav_id"
             android:layout_width="wrap_content"
+            android:textColor="@color/black"
             android:layout_height="wrap_content"
             android:text="example123@gmail.com" />
     </LinearLayout>
 
-</androidx.cardview.widget.CardView>
+
 
 
 </androidx.appcompat.widget.LinearLayoutCompat>

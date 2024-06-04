@@ -20,12 +20,10 @@
             <item android:id="@+id/profile_nav"
                 android:icon="@drawable/profile_svgrepo_com"
                 android:title="Profile"/>
-            <item android:id="@+id/send_nav"
+            <item android:id="@+id/new_group_nav"
                 android:icon="@drawable/group_svgrepo_com"
                 android:title="New Group"/>
-            <item android:id="@+id/share_nav"
-                android:icon="@drawable/people_nearby_svgrepo_com"
-                android:title="Friends"/>
+
 
         </menu>
     </item>

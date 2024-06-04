@@ -8,5 +8,8 @@
     <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
         <item name="color">@color/white</item>
     </style>
+    <style name="myDialog" parent="Theme.AppCompat.Dialog">
+    <item name="android:windowNoTitle">true</item>
+    </style>
 
 </resources>

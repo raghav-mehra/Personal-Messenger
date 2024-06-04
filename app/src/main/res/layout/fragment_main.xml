@@ -19,8 +19,8 @@
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/main_toolbar"
                 android:background="@color/black"
-                app:menu="@menu/main_menu"
                 app:title="Personal Messenger"
+                app:menu="@menu/main_menu"
                 app:titleTextColor="@color/white"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

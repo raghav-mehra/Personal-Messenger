@@ -1,6 +1,7 @@
 package com.example.personalmassenger
 
 
+import Utils.FirebaseUtil
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
@@ -23,17 +24,12 @@ import java.io.ByteArrayOutputStream
 
 class SignUpActivity : AppCompatActivity() {
     private lateinit var mBinding: SignupActivityBinding
-    private var firebaseAuth: FirebaseAuth=FirebaseAuth.getInstance()
-    private val db:FirebaseFirestore = FirebaseFirestore.getInstance()
-    private val userReference:CollectionReference = db.collection("Users")
-    private lateinit var storageReference: StorageReference
     private lateinit var email:String
     private val register=registerForActivityResult(ActivityResultContracts.TakePicturePreview()){
         uploadImage(it)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        storageReference = getInstance().reference
         //  val animation=AnimationUtils.loadAnimation(this,R.anim.slide)
         mBinding = DataBindingUtil.setContentView(this, R.layout.signup_activity)
         mBinding.textViewRegister.setOnClickListener {
@@ -54,7 +50,7 @@ class SignUpActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-        if(firebaseAuth.currentUser!=null){
+        if(FirebaseUtil.firebaseAuth().currentUser!=null){
             launchMainActivity()
         }
     }
@@ -62,22 +58,23 @@ class SignUpActivity : AppCompatActivity() {
     override fun onStop() {
         super.onStop()
     }
+
     private fun capturePhoto(){
         register.launch(null)
     }
 
     private fun uploadImage(bitmap:Bitmap?){
         val baos= ByteArrayOutputStream()
-        val userId=firebaseAuth.currentUser?.uid!!
+        val userEmail=FirebaseUtil.currentUserEmail()
         bitmap?.compress(Bitmap.CompressFormat.JPEG,50,baos)
         val path = MediaStore.Images.Media.insertImage(this.contentResolver, bitmap, "Title", null)
     //    val image=baos.toByteArray()
         val imageUri=Uri.parse(path)
 
-        storageReference.child("profile_photos/$userId").putFile(Uri.parse(path)).addOnSuccessListener {
+        FirebaseUtil.profilePicReference(userEmail).putFile(Uri.parse(path)).addOnSuccessListener {
             Toast.makeText(this@SignUpActivity,"Successfully uploaded",Toast.LENGTH_SHORT).show()
-            storageReference.downloadUrl.addOnSuccessListener {
-                userReference.document(userId).update("profilePhoto",it.toString())
+            it.storage.downloadUrl.addOnSuccessListener {
+                FirebaseUtil.currentUserDetails().update("profilePhoto",it.toString())
                 mBinding.signupProfilePhoto.setImageBitmap(bitmap)
             }
         }.addOnFailureListener{
@@ -90,7 +87,7 @@ class SignUpActivity : AppCompatActivity() {
         val password = mBinding.singInInputPassword.editText?.text.toString().trim()
         mBinding.circularProgressBar.visibility = View.VISIBLE
 
-        firebaseAuth.signInWithEmailAndPassword(email, password)
+        FirebaseUtil.firebaseAuth().signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     Toast.makeText(this@SignUpActivity, "Signed in", Toast.LENGTH_SHORT).show()
@@ -118,13 +115,13 @@ class SignUpActivity : AppCompatActivity() {
             return
         }
         mBinding.circularProgressBarSignUp.visibility=View.VISIBLE
-        firebaseAuth.createUserWithEmailAndPassword(email, password)
+        FirebaseUtil.firebaseAuth().createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     if (task.isComplete) {
-                        val id=firebaseAuth.currentUser?.uid!!
-                        val user = User(userName, "", id)
-                        userReference.document(email)
+                        val id=FirebaseUtil.currentUserId()
+                        val user = User(userName, "", id,"")
+                        FirebaseUtil.currentUserDetails()
                             .set(user)
                             .addOnSuccessListener {
                                 mBinding.flipper.displayedChild=2
@@ -150,8 +147,9 @@ class SignUpActivity : AppCompatActivity() {
         mBinding.flipper.setInAnimation(this, R.anim.slide_in_right)
         mBinding.flipper.setOutAnimation(this, R.anim.slide_out_left)
     }
+
     private fun launchMainActivity(){
-        if(firebaseAuth.currentUser==null) {
+        if(FirebaseUtil.firebaseAuth().currentUser==null) {
             Toast.makeText(this@SignUpActivity,"You need to sign in",Toast.LENGTH_SHORT).show()
             return
         }
@@ -159,8 +157,6 @@ class SignUpActivity : AppCompatActivity() {
         startActivity(intent)
         finish()
     }
-
-
 
 //    override fun onAuthStateChanged(p0: FirebaseAuth) {
 //        if(p0.currentUser!=null){

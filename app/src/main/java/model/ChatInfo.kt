@@ -8,5 +8,5 @@ data class ChatInfo(
     val profilePhoto: String,
     val lastMessage:Pair<String,String>,
     val email: String,
-    val uid:String
+    val messageEmail:String
 )

@@ -3,6 +3,7 @@ package Utils
 import com.google.firebase.auth.FirebaseAuth
 
 object Constants {
+    val KEY_TOKEN="token"
     val KEY_BUNDLE="Bundle"
     val KEY_REFERENCE="Reference"
     val KEY_IMAGE_URI="imageUri"
@@ -35,5 +36,13 @@ object Constants {
             i++
         }
         return name+".db"
+    }
+    fun getTableName(email:String):String{
+        var name=""
+        var i=0
+        while(email[i]!='@'){
+            name+=email[i++]
+        }
+        return name
     }
 }

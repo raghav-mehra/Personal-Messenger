@@ -1,3 +1,3 @@
 package model
 
-data class Contact(val userName:String, val profilePhoto: String,val uid:String, val email:String)
+data class Contact(var userName:String, val profilePhoto: String, val uid:String, var email:String)

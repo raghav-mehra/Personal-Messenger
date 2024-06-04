@@ -24,7 +24,7 @@
                 android:layout_width="25dp"
                 android:layout_height="25dp"
                 android:src="@drawable/back_svgrepo_com"/>
-            <ImageView
+            <com.mikhaellopez.circularimageview.CircularImageView
                 android:id="@+id/toolbar_profile_pic"
                 android:layout_marginLeft="15dp"
                 android:layout_width="45dp"
