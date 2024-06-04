@@ -1,5 +1,10 @@
 *****************About This Application*******************
 This is personal android chatting  application. This application uses firebase firestore for realtime communication and SQLite for offline storage of chats, contacts. 
+Disclaimer:
+(Please do not give any personal information while you use this app. This app is for testing purpose.)
+
+APK LINK: https://drive.google.com/file/d/1fKYl8eVlkgIcdjTyDAsYGoLlyGskIOO7/view?usp=sharing
+
 TECHNOLOGIES used:
 1. Android 
 2. Firebase for Realtime communication
