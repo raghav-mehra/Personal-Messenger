@@ -1,3 +1,13 @@
 package model
 
-data class Message(val senderId:String,val message:String,val timeStamp:String,val email:String,val imagePath:String)
+import LLD.MessagingManager.MessageObjectAdapter.ObjectTypes.MessageObjectInterface
+import LLD.MessagingManager.MessageStrategy.MessageStrategyInterface
+
+data class Message(
+    val type:String,
+    val text: String,
+    val timeStamp: String,
+    val senderEmail: String,
+    val receiverEmail: String,
+    val fileReference: String
+)

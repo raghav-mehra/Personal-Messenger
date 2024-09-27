@@ -23,7 +23,7 @@ object FirebaseUtil {
         return auth.currentUser?.email!!
     }
     fun currentUserChats(): CollectionReference {
-        return db.collection("Chats").document(auth.currentUser?.uid!!).collection("Message")
+        return db.collection("Chats").document(auth.currentUser?.email!!).collection("Message")
     }
     fun userDetails(email:String):DocumentReference{
         return db.collection("Users").document(email)

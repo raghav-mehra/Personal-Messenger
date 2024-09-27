@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.devlomi.circularstatusview.CircularStatusView
 import com.example.personalmassenger.Communicator
+import com.example.personalmassenger.HighlightsViewActivity
 import com.example.personalmassenger.R
 import com.example.personalmassenger.adapters.HighlightsAdapter
 import com.example.personalmassenger.localDatabse.localDbHandler
@@ -64,13 +65,11 @@ class Highlights : Fragment() {
 
         myStatusDp.setOnClickListener {
             if(portionsCount>0) {
-                communicator = activity as Communicator
-                communicator.passStoryData(auth?.displayName.toString(), auth?.email.toString())
+                viewStory(auth?.displayName.toString(),auth?.email.toString())
             }
         }
         adapter.onItemClick={
-            communicator=activity as Communicator
-            communicator.passStoryData(it.name,it.email)
+          viewStory(it.name,it.email)
         }
 
         userReference.document(auth?.email!!).collection("Story").get().addOnSuccessListener   { myStories->
@@ -94,6 +93,15 @@ class Highlights : Fragment() {
         return view
     }
 
+    private fun viewStory(name: String, email: String) {
+        val bundle = Bundle()
+        val intent= Intent(activity, HighlightsViewActivity::class.java)
+        bundle.putString(Constants.KEY_NAME, name)
+        bundle.putString(Constants.KEY_EMAIL, email)
+        intent.putExtra(Constants.KEY_REFERENCE,bundle)
+        startActivity(intent)
+    }
+
     private fun uploadStory(){
         val intent=Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         intent.setType("image/* video/*")
@@ -112,11 +120,9 @@ class Highlights : Fragment() {
         myCircularStatusView.invalidate()
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(resultCode==RESULT_OK){
             val imageUri=data?.data
-
             if(imageUri!=null){
                 showStoryLoading()
                 storyStorage.child("${auth?.uid!!}/${System.currentTimeMillis()}").putFile(imageUri).addOnSuccessListener {
@@ -167,7 +173,6 @@ class Highlights : Fragment() {
 
                 }
         }
-
     }
 
     override fun onResume() {

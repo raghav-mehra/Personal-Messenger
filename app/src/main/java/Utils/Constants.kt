@@ -3,6 +3,13 @@ package Utils
 import com.google.firebase.auth.FirebaseAuth
 
 object Constants {
+    val KEY_IMAGE="Image"
+    val KEY_DOCUMENT="Document"
+    val KEY_FILE_REFERENCE="fileReference"
+    val KEY_RECEIVER_EMAIL="receiverEmail"
+    val KEY_SENDER_EMAIL="senderEmail"
+    val KEY_TEXT="Text"
+    val KEY_TYPE="type"
     val KEY_TOKEN="token"
     val KEY_BUNDLE="Bundle"
     val KEY_REFERENCE="Reference"
@@ -27,6 +34,7 @@ object Constants {
     val TABLE_NAME_CHATS="chats"
     const val KEY_NAME="name"
     const val KEY_PHONE_NUMBER="phoneNumber"
+
     fun generateDatabaseName():String{
         var name="storemsg"
         var i=0

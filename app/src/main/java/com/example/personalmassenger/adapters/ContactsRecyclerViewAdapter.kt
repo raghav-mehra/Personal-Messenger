@@ -102,7 +102,6 @@ class ContactsRecyclerViewAdapter(): RecyclerView.Adapter<ContactsRecyclerViewAd
             bg.setBackgroundResource(R.drawable.not_selected_item_background)
         }
 
-
     }
 
     fun updateContactList(list:MutableList<Contact>){

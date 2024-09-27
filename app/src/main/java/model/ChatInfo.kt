@@ -8,5 +8,7 @@ data class ChatInfo(
     val profilePhoto: String,
     val lastMessage:Pair<String,String>,
     val email: String,
-    val messageEmail:String
+    val messageEmail:String,
+    val unreadMessages:Int,
+    var isSelected:Boolean
 )

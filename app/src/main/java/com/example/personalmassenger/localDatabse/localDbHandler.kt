@@ -12,10 +12,26 @@ import androidx.lifecycle.MutableLiveData
 import model.ChatInfo
 import model.Contact
 import model.Message
+class localDbHandler (context: Context) : SQLiteOpenHelper(
+    context.applicationContext, Constants.DATABASE_NAME, null, Constants.DATABASE_VERSION
+) {
 
-class localDbHandler(context: Context) :
-    SQLiteOpenHelper(context, Constants.DATABASE_NAME, null, Constants.DATABASE_VERSION) {
-        private var contactName= mutableMapOf <String,String>()
+    private var contactName= mutableMapOf <String,String> () // key:table_name, value: Name
+
+    companion object {
+
+        @Volatile
+        private var instance: localDbHandler? = null
+
+        @JvmStatic
+        fun getInstance(context: Context): localDbHandler {
+            return instance ?: synchronized(this) {
+                instance ?: localDbHandler(context).also { instance = it }
+            }
+        }
+
+    }
+
 
     override fun onCreate(db: SQLiteDatabase?) {
         Log.d("databaseName", Constants.DATABASE_NAME)
@@ -32,7 +48,7 @@ class localDbHandler(context: Context) :
         db?.execSQL("DROP TABLE IF EXISTS ${Constants.TABLE_NAME_CONTACTS}")
         onCreate(db)
     }
-    fun generateMap(){
+    fun  generateMap(){
         val db = this.writableDatabase
         val selectAll = "SELECT * FROM ${Constants.TABLE_NAME_CONTACTS}"
         val cursor = db.rawQuery(selectAll, null)
@@ -43,27 +59,32 @@ class localDbHandler(context: Context) :
 
         }
     }
-
+    fun getContactName(email:String) : String{
+        val name=contactName[Constants.getTableName(email)]
+        return if(name!=null) name else email
+    }
     fun createTable(tableName: String) {
         val db = this.writableDatabase
         val CREATE_TABLE_CHAT = "CREATE TABLE IF NOT EXISTS ${tableName} (" +
                 "${Constants.KEY_ID} INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "${Constants.KEY_SENDER_ID} TEXT," +
-                "${Constants.KEY_MESSAGE} TEXT," +
+                "${Constants.KEY_TYPE} TEXT," +
+                "${Constants.KEY_TEXT} TEXT," +
                 "${Constants.KEY_TIME_STAMP} TEXT," +
-                "${Constants.KEY_EMAIL} TEXT,"+
-                "${Constants.KEY_IMAGEPATH} TEXT)"
+                "${Constants.KEY_SENDER_EMAIL} TEXT,"+
+                "${Constants.KEY_RECEIVER_EMAIL} TEXT,"+
+                "${Constants.KEY_FILE_REFERENCE} TEXT)"
         db.execSQL(CREATE_TABLE_CHAT)
     }
 
     fun addMessage(tableName: String, message: Message) {
         val db = this.writableDatabase
         val values = ContentValues()
-        values.put(Constants.KEY_SENDER_ID, message.senderId)
-        values.put(Constants.KEY_MESSAGE, message.message)
+        values.put(Constants.KEY_TYPE, message.type)
+        values.put(Constants.KEY_TEXT, message.text)
         values.put(Constants.KEY_TIME_STAMP, message.timeStamp)
-        values.put(Constants.KEY_EMAIL, message.email)
-        values.put(Constants.KEY_IMAGEPATH,message.imagePath)
+        values.put(Constants.KEY_SENDER_EMAIL, message.senderEmail)
+        values.put(Constants.KEY_RECEIVER_EMAIL, message.receiverEmail)
+        values.put(Constants.KEY_FILE_REFERENCE,message.fileReference)
         db.insert(tableName, null, values)
         db.close()
     }
@@ -114,7 +135,8 @@ class localDbHandler(context: Context) :
                         cursor.getString(2),
                         cursor.getString(3),
                         cursor.getString(4),
-                        cursor.getString(5)
+                        cursor.getString(5),
+                        cursor.getString(6)
                     )
                 )
             } while (cursor.moveToNext())
@@ -144,11 +166,11 @@ class localDbHandler(context: Context) :
                 val cursor2 = db.rawQuery(count, null)
                 cursor2.moveToFirst()
                 if(cursor2.getInt(0)>0)
-                chats.add(fetchLastRow(tableName))
+                    chats.add(fetchLastRow(tableName))
                 cursor.moveToNext()
             }
         }
-         return chats
+        return chats
     }
 
     private fun fetchLastRow(tableName: String): ChatInfo {
@@ -156,13 +178,13 @@ class localDbHandler(context: Context) :
         val selectAll = "SELECT * FROM ${tableName}"
         val cursor = db.rawQuery(selectAll, null)
         cursor.moveToLast()
-        val name=if(contactName[tableName]!=null) contactName[tableName].toString() else getEmail(tableName)
+        val name=if(contactName[tableName].toString()!="null") contactName[tableName].toString() else tableName
 
         val info=ChatInfo(
             name,
             "",
             Pair(cursor.getString(2), cursor.getString(3)),
-            tableName+"@gmail.com",cursor.getString(4)
+            tableName+"@gmail.com",cursor.getString(4),0,false
         )
 
         return info
@@ -230,5 +252,18 @@ class localDbHandler(context: Context) :
         val db=this.writableDatabase
         db.execSQL("delete from "+"${Constants.TABLE_NAME_CONTACTS}"+" where ${Constants.KEY_EMAIL}= '${contact.email}'")
     }
-
 }
+//class localDbHandler(context: Context) :
+//    SQLiteOpenHelper(context, Constants.DATABASE_NAME, null, Constants.DATABASE_VERSION) {
+//
+//
+//    override fun onCreate(db: SQLiteDatabase?) {
+
+//    }
+//
+//    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
+
+//    }
+
+//
+//}

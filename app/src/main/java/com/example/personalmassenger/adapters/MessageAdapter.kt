@@ -35,16 +35,16 @@ class MessageAdapter():RecyclerView.Adapter<MessageAdapter.viewHolder>() {
     }
 
     override fun getItemViewType(position: Int): Int {
-         if(list[position].senderId== FirebaseAuth.getInstance().currentUser!!.uid)
+         if(list[position].senderEmail== FirebaseAuth.getInstance().currentUser!!.email)
              return 1
         return 0
     }
 
     override fun onBindViewHolder(holder: viewHolder, position: Int) {
-        holder.textviewMessage.text=list[position].message
+        holder.textviewMessage.text=list[position].text
         holder.textviewTime.text=list[position].timeStamp
       //  holder.title_name.text="~ ${list[position].email}"
-        val imagePath=list[position].imagePath
+        val imagePath=list[position].fileReference
         if (imagePath!="null"){
             imagesReference.child(imagePath).getBytes(2048*2048).addOnSuccessListener {
                 holder.imageView.setImageBitmap(BitmapFactory.decodeByteArray(it,0,it.size))

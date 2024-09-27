@@ -41,9 +41,10 @@
                 android:id="@+id/chat_last_message"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Last message"
+                android:text="Last message aaaaaaaaaaaaaaaaaaaaaaaaaaa"
                 android:textSize="18dp"
                 android:ellipsize="end"
+                android:maxEms="10"
                 android:layout_alignBottom="@id/chat_person_name"
                 android:layout_marginLeft="6dp"
                 android:layout_marginBottom="-20dp"
@@ -57,13 +58,30 @@
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="45dp"
                 android:text="2:10"/>
-            <ImageView
-                android:id="@+id/marked_imageView"
+            <RelativeLayout
+                android:id="@+id/unread_messages_RL"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
-                android:src="@drawable/checked"
                 android:visibility="invisible"
-                android:layout_alignParentEnd="true"/>
+                android:background="@drawable/unread_messages_background"
+                android:layout_alignParentEnd="true">
+                <TextView
+                    android:id="@+id/unread_messages_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:text="99+"
+                    android:maxLines="1"
+                    android:maxEms="3"/>
+
+            </RelativeLayout>
+<!--            <ImageView-->
+<!--                android:id="@+id/marked_imageView"-->
+<!--                android:layout_width="30dp"-->
+<!--                android:layout_height="30dp"-->
+<!--                android:src="@drawable/checked"-->
+<!--                android:visibility="invisible"-->
+<!--                android:layout_alignParentEnd="true"/>-->
 
         </RelativeLayout>
     </androidx.cardview.widget.CardView>

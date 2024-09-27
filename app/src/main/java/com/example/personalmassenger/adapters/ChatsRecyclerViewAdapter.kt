@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
@@ -25,13 +26,12 @@ import kotlin.math.max
 
 class ChatsRecyclerViewAdapter(context:Context): RecyclerView.Adapter<ChatsRecyclerViewAdapter.ChatsViewHolder>() {
     private val myEmail=FirebaseUtil.currentUserEmail()
-    private var localDb= localDbHandler(context)
-    private var chatList: MutableList<ChatInfo> =localDb.loadChatInfo()
+    var localDb= localDbHandler.getInstance(context)
+    private var chatList: MutableList<ChatInfo> = localDb.loadChatInfo()
     private var map= mutableMapOf<String,Int>()
-    private var selectedItems=mutableSetOf<Int>()
+    private var selectedItems=0
     var onItemClick:((ChatInfo)->Unit)?=null
-    var onLongPressItemClick:(()->Unit)?=null
-
+    var onLongPressItemClick:((ChatInfo,Int,ChatsRecyclerViewAdapter)->Unit)?=null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatsViewHolder {
         if(viewType==0) {
@@ -53,33 +53,49 @@ class ChatsRecyclerViewAdapter(context:Context): RecyclerView.Adapter<ChatsRecyc
     override fun getItemViewType(position: Int): Int {
         return if(chatList.size>0) 0 else 1
     }
+
     override fun onBindViewHolder(holder: ChatsViewHolder, position: Int) {
         if(chatList.size!=0) {
             val chat = chatList[position]
-            map[chat.email] = position
+         //   map[chat.email] = position
             holder.name.text = chat.name
             holder.time.text = chat.lastMessage.second
+            holder.profilePic.setImageResource(R.drawable.ic_profile)
+            if (chat.isSelected) {
+                holder.bg.setBackgroundResource(R.drawable.selected_item_background)
+            }
+            if (chat.unreadMessages!=0){
+                holder.unreadMessagesTv.text=if(chat.unreadMessages > 99) "99+" else chat.unreadMessages.toString()
+                holder.unreadMessageBg.visibility=View.VISIBLE
+            }
+            else{
+                holder.unreadMessageBg.visibility=View.INVISIBLE
+            }
             holder.itemView.setOnClickListener {
-                if (selectedItems.size == 0) {
+                if (selectedItems == 0) {
                     onItemClick?.invoke(chat)
-                } else if (selectedItems.contains(position)) {
+                }
+                else if (chatList[position].isSelected) {
                     holder.unMarkItem()
-                    selectedItems.remove(position)
-                    if (selectedItems.isEmpty()) {
-                        onLongPressItemClick?.invoke()
+                    chatList[position].isSelected=false
+                    selectedItems--
+                    if (selectedItems==0) {
+                        onLongPressItemClick?.invoke(chat,selectedItems,this)
                     }
                 } else {
                     holder.markItem()
-                    selectedItems.add(position)
+                    chatList[position].isSelected=true
+                    selectedItems++
                 }
             }
             holder.itemView.setOnLongClickListener {
-                if (selectedItems.size == 0) {
-                    holder.markItem()
-                    selectedItems.add(position)
-                    onLongPressItemClick?.invoke()
+                if (selectedItems == 0) {
+//                    holder.markItem()
+                    chatList[position].isSelected=true
+                    selectedItems++
+                    notifyDataSetChanged()
+                    onLongPressItemClick?.invoke(chat,selectedItems,this)
                 }
-
                 true
             }
 
@@ -104,45 +120,62 @@ class ChatsRecyclerViewAdapter(context:Context): RecyclerView.Adapter<ChatsRecyc
         val lastMessage=view.findViewById<TextView>(R.id.chat_last_message)
         val tickMark=view.findViewById<ImageView>(R.id.marked_imageView)
         val bg=view.findViewById<CardView>(R.id.item_background)
+        val unreadMessageBg=view.findViewById<RelativeLayout>(R.id.unread_messages_RL)
+        val unreadMessagesTv=view.findViewById<TextView>(R.id.unread_messages_tv)
     //    val emptyFragTv=view.findViewById<TextView>(R.id.empty_fragment_textView)
         fun markItem(){
-            tickMark.visibility=View.VISIBLE
+           // tickMark.visibility=View.VISIBLE
             bg.setBackgroundResource(R.drawable.selected_item_background)
         }
         fun unMarkItem(){
-            tickMark.visibility=View.INVISIBLE
+           // tickMark.visibility=View.INVISIBLE
             bg.setBackgroundResource(R.drawable.not_selected_item_background)
         }
+
     }
 
     fun updateChatList(list:MutableList<ChatInfo>){
         chatList=list
-        chatList.sortWith(compareByDescending ({it.lastMessage.second}))
+      //  chatList.sortWith(compareByDescending ({it.lastMessage.second}))
         Log.d("chatInfoUpdate",chatList.toString())
         notifyDataSetChanged()
     }
+
     fun refresh(){
         updateChatList(localDb.loadChatInfo())
     }
-    fun updateChatList(id:String,value:ChatInfo) {
-        if (!map.containsKey(id)) {
+
+    fun insertAtTop(value:ChatInfo) {
+        if (!map.containsKey(value.email)) {
             chatList.add(0, value)
 
-        } else {
-            chatList.removeAt(map[id]!!)
+        }
+        else {
+            value.isSelected=chatList[map[value.email]!!].isSelected
+            chatList.removeAt(map[value.email]!!)
             chatList.add(0, value)
         }
         notifyDataSetChanged()
     }
+
     fun deleteSelectedChats(){
-        for( pos in selectedItems){
-            localDb.deleteTableRecord(Constants.getTableName(chatList[pos].email))
-            chatList.removeAt(pos)
+        val iterator=chatList.listIterator()
+        with (iterator) {
+            forEach {item->
+                if (item.isSelected) {
+                    localDb.deleteTableRecord(Constants.getTableName(item.email))
+                  //  chatList.remove(item)
+                }
+            }
         }
+        chatList.removeAll{it.isSelected==true }
         notifyDataSetChanged()
     }
-    fun deselectAll(){
+
+    fun deselectAll()
+    {
 
     }
+
 
 }

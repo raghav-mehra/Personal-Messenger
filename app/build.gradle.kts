@@ -59,6 +59,8 @@ android {
 
 dependencies {
 
+    implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
+    implementation("androidx.navigation:navigation-ui-ktx:2.7.6")
     val lifecycle_version = "2.7.0"
     implementation ("com.google.android.material:material:1.3.0-alpha02")
     implementation ("com.github.skydoves:expandablelayout:1.0.7")

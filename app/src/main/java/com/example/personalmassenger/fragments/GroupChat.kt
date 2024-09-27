@@ -65,17 +65,17 @@ class GroupChat : Fragment() {
                     if(dc.type == DocumentChange.Type.REMOVED){
                         continue
                     }
-                    localDb.addMessage(doc_name, Message(
-                        receivedEmail.toString(),
-                        receivedMessage.toString(),
-                        receivedTime.toString(),receivedEmail.toString(),receivedImagePath
-                    )
-                    )
-                    messageAdapter.addMessage(Message(
-                        receivedEmail.toString(),
-                        receivedMessage.toString(),
-                        receivedTime.toString(),receivedEmail.toString(),receivedImagePath
-                    ))
+//                    localDb.addMessage(doc_name, Message(
+//                        receivedEmail.toString(),
+//                        receivedMessage.toString(),
+//                        receivedTime.toString(),receivedEmail.toString(),receivedImagePath
+//                    )
+//                    )
+//                    messageAdapter.addMessage(Message(
+//                        receivedEmail.toString(),
+//                        receivedMessage.toString(),
+//                        receivedTime.toString(),receivedEmail.toString(),receivedImagePath
+//                    ))
 
             }
             }
