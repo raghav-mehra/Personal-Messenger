@@ -2,11 +2,16 @@ package com.example.personalmassenger
 
 import Utils.Constants
 import Utils.FirebaseUtil
+import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.StrictMode
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -16,6 +21,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -28,8 +34,15 @@ import com.example.personalmassenger.viewModel.ToolbarViewModel
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.messaging.FirebaseMessaging
+import com.karumi.dexter.Dexter
+import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionDeniedResponse
+import com.karumi.dexter.listener.PermissionGrantedResponse
+import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.single.PermissionListener
 import com.mikhaellopez.circularimageview.CircularImageView
 
 
@@ -53,44 +66,22 @@ class MainActivity : AppCompatActivity(), MainToolbar {
     private lateinit var mainToolbar: MainToolbar
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main_container)
-        toolbar=findViewById(R.id.main_toolbar)
-       // toolbar.navigationIcon?.setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY)
-        tabLayout=findViewById(R.id.tab_layout)
-        viewPager=findViewById(R.id.view_pager)
-        drawer=findViewById(R.id.drawer_layout)
-        navigationView=findViewById(R.id.navigation_view)
-        toggle= ActionBarDrawerToggle(this,drawer,toolbar,R.string.navigation_drawer_open,R.string.navigation_drawer_close)
-        drawer.addDrawerListener(toggle)
-        toggle.syncState()
-        setSupportActionBar(toolbar)
-      // toolbar.inflateMenu(R.menu.main_menu)
-        headerView=navigationView.getHeaderView(0)
-        navProfilePic=headerView.findViewById(R.id.imageView)
-        navHeaderEmail=headerView.findViewById(R.id.nav_id)
-        navHeaderName=headerView.findViewById(R.id.nav_username)
-        navHeaderEmail.text=FirebaseUtil.currentUserEmail()
-        FirebaseUtil.currentUserDetails().get().addOnSuccessListener {
-            navHeaderName.text=it.getString(Constants.KEY_USERNAME).toString()
-
-//            navProfilePic.setImageURI(it.get(Constants.KEY_PROFILE_PHOTO) as Uri?)
+        setReferences()
+        getFCMToken()
+        toolbar.setOnMenuItemClickListener {
+            when(it.itemId){
+                R.id.sign_out_menu-> {
+                    FirebaseUtil.firebaseAuth().signOut()
+                    val intent= Intent(this,SignUpActivity::class.java)
+                    startActivity(intent)
+                    this.finish()
+                }
+                R.id.delete_menu->{
+                    alertDeleteDialog()
+                }
+            }
+            true
         }
-
-//        toolbar.setOnMenuItemClickListener {
-//            when(it.itemId){
-//                R.id.sign_out_menu-> {
-//                    FirebaseUtil.firebaseAuth().signOut()
-//                    val intent= Intent(this,SignUpActivity::class.java)
-//                    startActivity(intent)
-//                    this.finish()
-//                }
-//                R.id.delete_menu->{
-//                    Log.d("DeleteButton","clicked")
-//                    chatsAdapterRef.deleteSelectedChats()
-//                }
-//            }
-//            true
-//        }
 
 //        toolbarViewModel.itemSelected.observe(this, Observer {
 //            toolbarMode->
@@ -137,8 +128,62 @@ class MainActivity : AppCompatActivity(), MainToolbar {
 //
 //            }
 //        }
-    }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            Dexter.withContext(applicationContext)
+                .withPermission(Manifest.permission.POST_NOTIFICATIONS)
+                .withListener(object : PermissionListener{
+                    override fun onPermissionGranted(p0: PermissionGrantedResponse?) {
 
+                    }
+
+                    override fun onPermissionDenied(p0: PermissionDeniedResponse?) {
+
+                    }
+
+                    override fun onPermissionRationaleShouldBeShown(
+                        p0: PermissionRequest?,
+                        p1: PermissionToken?
+                    ) {
+
+                    }
+
+                }).check()
+        }
+        val policy=StrictMode.ThreadPolicy.Builder().permitAll().build()
+        StrictMode.setThreadPolicy(policy)
+    }
+    private fun setReferences(){
+        setContentView(R.layout.activity_main_container)
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        toolbar=findViewById(R.id.main_toolbar)
+        FirebaseApp.initializeApp(this)
+        // toolbar.navigationIcon?.setColorFilter(Color.WHITE, PorterDuff.Mode.MULTIPLY)
+        tabLayout=findViewById(R.id.tab_layout)
+        viewPager=findViewById(R.id.view_pager)
+        drawer=findViewById(R.id.drawer_layout)
+        navigationView=findViewById(R.id.navigation_view)
+        toggle= ActionBarDrawerToggle(this,drawer,toolbar,R.string.navigation_drawer_open,R.string.navigation_drawer_close)
+        drawer.addDrawerListener(toggle)
+        toggle.syncState()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+       // setSupportActionBar(toolbar)
+        // toolbar.inflateMenu(R.menu.main_menu)
+        headerView=navigationView.getHeaderView(0)
+        navProfilePic=headerView.findViewById(R.id.imageView_header)
+        navHeaderEmail=headerView.findViewById(R.id.nav_id)
+        navHeaderName=headerView.findViewById(R.id.nav_username)
+        navHeaderEmail.text=FirebaseUtil.currentUserEmail()
+        FirebaseUtil.profilePicReference(FirebaseUtil.currentUserEmail()).getBytes(800 * 800)
+            .addOnSuccessListener {
+                navProfilePic.setImageBitmap(BitmapFactory.decodeByteArray(it, 0, it.size))
+            }
+        FirebaseUtil.currentUserDetails().get().addOnSuccessListener {
+            navHeaderName.text=it.getString(Constants.KEY_USERNAME).toString()
+//            navProfilePic.setImageURI(it.get(Constants.KEY_PROFILE_PHOTO) as Uri?)
+
+        }
+        //
+    }
     override fun itemSelected() {
         val deleteItem=toolbar.menu.findItem(R.id.delete_menu)
         deleteItem.isVisible=true
@@ -188,6 +233,15 @@ class MainActivity : AppCompatActivity(), MainToolbar {
             }.create().show()
     }
 
+    @SuppressLint("MissingSuperCall")
+    override fun onBackPressed() {
+        if (chatsAdapterRef.selectedItems != 0) {
+            chatsAdapterRef.deselectAll()
+        } else {
+            super.onBackPressed()
+        }
+    }
+
 }
     //}
 
@@ -201,7 +255,6 @@ class MainActivity : AppCompatActivity(), MainToolbar {
     }
 
 
-
 //    override fun onBackPressed() {
 //        val fragment =
 //            this.supportFragmentManager.findFragmentById(R.id.main_fragment_container)
@@ -210,6 +263,7 @@ class MainActivity : AppCompatActivity(), MainToolbar {
 //        }
 //
 //    }
+
 
 
 

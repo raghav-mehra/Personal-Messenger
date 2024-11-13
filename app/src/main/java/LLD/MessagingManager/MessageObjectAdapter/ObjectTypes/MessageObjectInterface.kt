@@ -10,4 +10,5 @@ interface MessageObjectInterface {
     fun getMessageModel(documentChange: DocumentChange): Message
     fun getMessageModel(messageObj:Map<String,String>): Message
 
+
 }

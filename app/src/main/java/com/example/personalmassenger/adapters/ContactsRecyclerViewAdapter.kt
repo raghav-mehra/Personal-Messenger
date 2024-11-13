@@ -72,11 +72,11 @@ class ContactsRecyclerViewAdapter(): RecyclerView.Adapter<ContactsRecyclerViewAd
                 onItemClick?.invoke(contactList[position])
             }
         }
-        holder.itemView.setOnLongClickListener {
-            holder.markItem()
-            selectedItems.add(position)
-            true
-        }
+//        holder.itemView.setOnLongClickListener {
+//            holder.markItem()
+//            selectedItems.add(position)
+//            true
+//        }
 
         FirebaseUtil.profilePicReference(contact.email).getBytes(1024*1024).addOnSuccessListener {
             holder.profilePic.setImageBitmap(BitmapFactory.decodeByteArray(it,0,it.size))

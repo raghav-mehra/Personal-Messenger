@@ -6,9 +6,9 @@ import com.google.firebase.firestore.DocumentReference
 data class ChatInfo(
     val name:String,
     val profilePhoto: String,
-    val lastMessage:Pair<String,String>,
+    var lastMessage:Pair<String,String>,
     val email: String,
     val messageEmail:String,
-    val unreadMessages:Int,
+    var unreadMessages:Int,
     var isSelected:Boolean
 )

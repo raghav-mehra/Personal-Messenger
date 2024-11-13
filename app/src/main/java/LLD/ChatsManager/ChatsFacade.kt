@@ -11,8 +11,10 @@ import model.ChatInfo
 class ChatsFacade(val context: Chats):ChatsDataInterface {
 
     override fun receiveMessages(docs: QuerySnapshot?) {
+
         val hash=HashMap<String,ChatInfo>()
         val unreadCount=HashMap<String,Int>()
+
         for (doc in docs?.documentChanges!!){
             if (doc.type !=DocumentChange.Type.ADDED) continue
             val message=doc.document.getString(Constants.KEY_TEXT).toString()
@@ -26,6 +28,7 @@ class ChatsFacade(val context: Chats):ChatsDataInterface {
         for((key,value) in hash){
             updateChat(value)
         }
+
     }
 
     override fun updateChat(chatInfo: ChatInfo) {

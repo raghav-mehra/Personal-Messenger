@@ -1,8 +1,10 @@
 package com.example.personalmassenger.fragments
 
 import Utils.Constants
+import Utils.FirebaseUtil
 import android.app.Activity.RESULT_OK
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -24,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.mikhaellopez.circularprogressbar.CircularProgressBar
+import de.hdodenhof.circleimageview.CircleImageView
 import model.Highlight
 import xute.storyview.StoryModel
 import java.sql.Timestamp
@@ -32,7 +35,7 @@ import kotlin.math.abs
 
 
 class Highlights : Fragment() {
-    private lateinit var myStatusDp:ImageView
+    private lateinit var myStatusDp:CircleImageView
     private lateinit var recyclerView:RecyclerView
     private lateinit var myCircularStatusView:CircularStatusView
     private lateinit var localDb:localDbHandler
@@ -71,7 +74,10 @@ class Highlights : Fragment() {
         adapter.onItemClick={
           viewStory(it.name,it.email)
         }
-
+        FirebaseUtil.profilePicReference(FirebaseUtil.currentUserEmail()).getBytes(800 * 800)
+            .addOnSuccessListener {
+                myStatusDp.setImageBitmap(BitmapFactory.decodeByteArray(it, 0, it.size))
+            }
         userReference.document(auth?.email!!).collection("Story").get().addOnSuccessListener   { myStories->
             var cnt=0
             for(story in myStories!!){

@@ -27,12 +27,16 @@ import kotlin.math.max
 class ChatsRecyclerViewAdapter(context:Context): RecyclerView.Adapter<ChatsRecyclerViewAdapter.ChatsViewHolder>() {
     private val myEmail=FirebaseUtil.currentUserEmail()
     var localDb= localDbHandler.getInstance(context)
-    private var chatList: MutableList<ChatInfo> = localDb.loadChatInfo()
-    private var map= mutableMapOf<String,Int>()
-    private var selectedItems=0
+    private lateinit var chatList: MutableList<ChatInfo>
+    private var map= mutableMapOf<String,ChatInfo>()
+    var selectedItems=0
     var onItemClick:((ChatInfo)->Unit)?=null
+    var hideMenuOptions:(()->Unit)?=null
+    var showMenuOptions:(()->Unit)?=null
     var onLongPressItemClick:((ChatInfo,Int,ChatsRecyclerViewAdapter)->Unit)?=null
-
+    init {
+        refresh()
+    }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatsViewHolder {
         if(viewType==0) {
             return ChatsViewHolder(
@@ -53,16 +57,21 @@ class ChatsRecyclerViewAdapter(context:Context): RecyclerView.Adapter<ChatsRecyc
     override fun getItemViewType(position: Int): Int {
         return if(chatList.size>0) 0 else 1
     }
-
+    fun refreshUi(){
+        notifyDataSetChanged()
+    }
     override fun onBindViewHolder(holder: ChatsViewHolder, position: Int) {
         if(chatList.size!=0) {
             val chat = chatList[position]
          //   map[chat.email] = position
             holder.name.text = chat.name
-            holder.time.text = chat.lastMessage.second
+            holder.time.text = Constants.getFormattedTime(chat.lastMessage.second)
             holder.profilePic.setImageResource(R.drawable.ic_profile)
             if (chat.isSelected) {
                 holder.bg.setBackgroundResource(R.drawable.selected_item_background)
+            }
+            else{
+                holder.unMarkItem()
             }
             if (chat.unreadMessages!=0){
                 holder.unreadMessagesTv.text=if(chat.unreadMessages > 99) "99+" else chat.unreadMessages.toString()
@@ -74,13 +83,15 @@ class ChatsRecyclerViewAdapter(context:Context): RecyclerView.Adapter<ChatsRecyc
             holder.itemView.setOnClickListener {
                 if (selectedItems == 0) {
                     onItemClick?.invoke(chat)
+                    chatList[position].unreadMessages=0
                 }
                 else if (chatList[position].isSelected) {
                     holder.unMarkItem()
                     chatList[position].isSelected=false
                     selectedItems--
                     if (selectedItems==0) {
-                        onLongPressItemClick?.invoke(chat,selectedItems,this)
+                        hideMenuOptions?.invoke()
+                     //   onLongPressItemClick?.invoke(chat,selectedItems,this)
                     }
                 } else {
                     holder.markItem()
@@ -91,9 +102,15 @@ class ChatsRecyclerViewAdapter(context:Context): RecyclerView.Adapter<ChatsRecyc
             holder.itemView.setOnLongClickListener {
                 if (selectedItems == 0) {
 //                    holder.markItem()
-                    chatList[position].isSelected=true
+                    if(chatList.size==1){
+                        chatList[0].isSelected=true
+                    }
+                    else {
+                        chatList[position].isSelected = true
+                    }
                     selectedItems++
-                    notifyDataSetChanged()
+                    notifyItemChanged(position)
+                    showMenuOptions?.invoke()
                     onLongPressItemClick?.invoke(chat,selectedItems,this)
                 }
                 true
@@ -136,7 +153,11 @@ class ChatsRecyclerViewAdapter(context:Context): RecyclerView.Adapter<ChatsRecyc
 
     fun updateChatList(list:MutableList<ChatInfo>){
         chatList=list
-      //  chatList.sortWith(compareByDescending ({it.lastMessage.second}))
+        map.clear()
+        for (i in list){
+            map.put(i.email,i)
+        }
+        chatList.sortWith(compareByDescending ({it.lastMessage.second}))
         Log.d("chatInfoUpdate",chatList.toString())
         notifyDataSetChanged()
     }
@@ -148,14 +169,40 @@ class ChatsRecyclerViewAdapter(context:Context): RecyclerView.Adapter<ChatsRecyc
     fun insertAtTop(value:ChatInfo) {
         if (!map.containsKey(value.email)) {
             chatList.add(0, value)
-
+            map.put(value.email,value)
+          //  notifyDataSetChanged()
+            if(chatList.size==1){
+                notifyDataSetChanged()
+            }
+            notifyItemRangeInserted(0,chatList.size-1)
+//            try {
+//                notifyItemInserted(0)
+//            }
+//            catch (e:Exception){
+//                notifyDataSetChanged()
+//            }
         }
         else {
-            value.isSelected=chatList[map[value.email]!!].isSelected
-            chatList.removeAt(map[value.email]!!)
-            chatList.add(0, value)
+//            chatList.removeAll{it.email==value.email}
+
+            map.replace(value.email,value)
+            var ind=0
+            for (i in chatList){
+                if (i.email==value.email){
+                    chatList[ind].unreadMessages += value.unreadMessages
+                    chatList[ind].lastMessage = value.lastMessage
+                    chatList.add(0,chatList[ind])
+                    chatList.removeAt(ind+1)
+                    notifyItemRemoved(ind)
+                    notifyItemInserted(0)
+                    break
+                }
+                ind++
+            }
+
+
         }
-        notifyDataSetChanged()
+
     }
 
     fun deleteSelectedChats(){
@@ -164,16 +211,30 @@ class ChatsRecyclerViewAdapter(context:Context): RecyclerView.Adapter<ChatsRecyc
             forEach {item->
                 if (item.isSelected) {
                     localDb.deleteTableRecord(Constants.getTableName(item.email))
+                    notifyItemRemoved(iterator.nextIndex()-1)
                   //  chatList.remove(item)
                 }
             }
         }
         chatList.removeAll{it.isSelected==true }
-        notifyDataSetChanged()
+        map.clear()
+        selectedItems=0
+    //    notifyDataSetChanged()
     }
 
     fun deselectAll()
     {
+        hideMenuOptions?.invoke()
+        selectedItems=0
+        val iterator=chatList.listIterator()
+        with (iterator) {
+            forEach {item->
+                if (item.isSelected) {
+                    chatList[iterator.nextIndex()-1].isSelected=false
+                }
+            }
+        }
+        notifyDataSetChanged()
 
     }
 

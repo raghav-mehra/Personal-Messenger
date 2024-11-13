@@ -10,11 +10,18 @@ import LLD.MessagingManager.MessageStrategy.TextStrategy
 import Utils.Constants
 import Utils.FirebaseUtil
 import android.util.Log
+import android.widget.Toast
+import com.example.personalmassenger.NotificationApi
 import com.example.personalmassenger.localDatabse.localDbHandler
 import com.example.personalmassenger.viewModel.MessagingViewModel
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.QuerySnapshot
 import model.Message
+import model.Notification
+import model.NotificationData
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class MessageFacade(private val viewModel: MessagingViewModel,private val localDb:localDbHandler) {
 
@@ -46,7 +53,10 @@ class MessageFacade(private val viewModel: MessagingViewModel,private val localD
     fun receive(querySnapshot: QuerySnapshot) {
         for (dc in querySnapshot.documentChanges) {
             if(dc.type != DocumentChange.Type.ADDED) continue
-            Log.d("Received_Message",dc.document.get(Constants.KEY_TEXT).toString())
+            if(dc.document.get(Constants.KEY_SENDER_EMAIL).toString() == FirebaseUtil.currentUserEmail()){
+                FirebaseUtil.currentUserChats().document(dc.document.id).delete()
+                continue
+            }
             when (dc.document.get(Constants.KEY_TYPE).toString()) {
                 Constants.KEY_TEXT -> {
                     messageStrategy = strategies[0]
@@ -62,6 +72,30 @@ class MessageFacade(private val viewModel: MessagingViewModel,private val localD
             }
 
         }
+
+    }
+
+    fun sendNotification(message:Message) {
+        FirebaseUtil.userDetails(message.receiverEmail).get().addOnSuccessListener {
+
+             val notification=Notification(NotificationData(it.getString(Constants.KEY_TOKEN), hashMapOf("title" to message.senderEmail,"body" to message.text)))
+            NotificationApi.create().sendNotification(notification)
+                .enqueue(object :Callback<Notification>{
+                    override fun onResponse(
+                        call: Call<Notification>,
+                        response: Response<Notification>
+                    ) {
+                        Log.d("Notification","Sent")
+                    }
+
+                    override fun onFailure(call: Call<Notification>, t: Throwable) {
+                        Log.d("Notification","Not sent")
+                    }
+                })
+        }
+            .addOnFailureListener {
+
+            }
 
     }
 

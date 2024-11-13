@@ -1,6 +1,8 @@
 package Utils
 
 import com.google.firebase.auth.FirebaseAuth
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object Constants {
     val KEY_IMAGE="Image"
@@ -48,9 +50,26 @@ object Constants {
     fun getTableName(email:String):String{
         var name=""
         var i=0
-        while(email[i]!='@'){
+        while(i<email.length && email[i]!='@'){
             name+=email[i++]
         }
         return name
+    }
+    fun getFormattedTime(timeStamp:String):String{
+        return timeStamp.slice(IntRange(11,15))
+    }
+    fun isOtherDay(timeStamp1: String,timeStamp2:String):Boolean{
+
+        return timeStamp1.slice(IntRange(0,10)) != timeStamp2.slice(IntRange(0,10))
+    }
+
+    fun compareDay(timeStamp: String): String {
+        val current = LocalDateTime.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+        val currentTimeStamp = current.format(formatter)
+        if(timeStamp.slice(IntRange(0,10)) == currentTimeStamp.slice(IntRange(0,10))){
+            return "today"
+        }
+        return timeStamp.slice(IntRange(0,10))
     }
 }

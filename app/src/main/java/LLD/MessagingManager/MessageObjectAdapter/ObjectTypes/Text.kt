@@ -1,8 +1,12 @@
 package LLD.MessagingManager.MessageObjectAdapter.ObjectTypes
 
 import Utils.Constants
+import Utils.FirebaseUtil
+import com.example.personalmassenger.localDatabse.localDbHandler
 import com.google.firebase.firestore.DocumentChange
 import model.Message
+import model.Notification
+import model.NotificationData
 
 class Text : MessageObjectInterface {
     override fun getMessageObj(model: Message): Map<String, String> {
@@ -39,6 +43,8 @@ class Text : MessageObjectInterface {
             messageObj[Constants.KEY_FILE_REFERENCE].toString(),
         )
     }
+
+
 
 
 }

@@ -15,7 +15,7 @@ class MessagingViewModel(context:Context,tableName:String):ViewModel() {
 
     private val localDb=localDbHandler.getInstance(context)
     private var _messagesList = MutableLiveData<MutableList<Message>> ()
-    private var messagesList = localDb.getFullChat(tableName)
+     var messagesList = localDb.getFullChat(tableName)
     var messageList: LiveData<MutableList<Message>> = _messagesList
     private var messageAdapter = MessageObjectAdapter()
 

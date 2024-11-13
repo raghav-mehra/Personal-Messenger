@@ -33,6 +33,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.firestore.DocumentChange
 import com.mikhaellopez.circularimageview.CircularImageView
 import model.Message
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 class MessagingActivity : AppCompatActivity() {
@@ -82,10 +84,20 @@ class MessagingActivity : AppCompatActivity() {
           toolbar_backButton=findViewById(R.id.toolbar_back)
           recyclerview.adapter = messageAdapter
           val manager= LinearLayoutManager(this)
+        manager.stackFromEnd=true
           recyclerview.layoutManager = manager
+    //    recyclerview.smoothScrollToPosition(messageViewModel.messagesList.size-1)
         messageViewModel.messageList.observe(this, Observer {
              messagesList->
              messageAdapter.updateMessages(messagesList)
+            try {
+                recyclerview.smoothScrollToPosition(messagesList.size-1)
+            }
+            catch (exception:Exception
+            ){
+
+            }
+
             Log.d("message",messagesList.toString())
            // recyclerview.smoothScrollToPosition(messageAdapter.getLastPosition())
         })
@@ -101,7 +113,7 @@ class MessagingActivity : AppCompatActivity() {
             toolbar_profile_pic.setImageBitmap(BitmapFactory.decodeByteArray(it,0,it.size))
         }
         toolbar_backButton.setOnClickListener {
-            fragmentManager?.popBackStack()
+            finish()
         }
         toolbar.setOnMenuItemClickListener {
             when(it.itemId){
@@ -162,10 +174,9 @@ class MessagingActivity : AppCompatActivity() {
         if (message.isEmpty()) {
             messageEditText.error = "Enter some message to send"
         } else {
-            val calender = Calendar.getInstance()
-            val hour = calender.get(Calendar.HOUR_OF_DAY)
-            val minute = calender.get(Calendar.MINUTE)
-            val timeStamp = "${calender.get(Calendar.DATE)} $hour:$minute"
+            val current = LocalDateTime.now()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+            val timeStamp = current.format(formatter)
             val messageObj = Message("Text",message,timeStamp,currentUserEmail,receiverEmail,"null")
             messageFacade.send(messageObj)
             messageEditText.text.clear()
@@ -177,10 +188,9 @@ class MessagingActivity : AppCompatActivity() {
         val userId=FirebaseUtil.currentUserId()
         val imagePath="chat_images/$userId/${System.currentTimeMillis()}"
         FirebaseUtil.getStorageReference().child(imagePath).putFile(uri!!).addOnSuccessListener {
-            val calender = Calendar.getInstance()
-            val hour = calender.get(Calendar.HOUR_OF_DAY)
-            val minute = calender.get(Calendar.MINUTE)
-            val timeStamp = "$hour:$minute"
+            val current = LocalDateTime.now()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
+            val timeStamp = current.format(formatter)
             val messageObj = mutableMapOf<String, String>().also {
                 it[Constants.KEY_SENDER_ID] =currentUserId
                 it[Constants.KEY_MESSAGE] = ""

@@ -32,6 +32,11 @@ class Chats : Fragment() {
     private val toolbarViewModel=ToolbarViewModel()
 
     override fun onResume() {
+
+        super.onResume()
+    }
+
+    override fun onStart() {
         registration=FirebaseUtil.currentUserChats().orderBy(Constants.KEY_TIME_STAMP).addSnapshotListener { snapshot, error ->
             error.let {
                 Log.d("Error",it.toString())
@@ -40,10 +45,6 @@ class Chats : Fragment() {
                 chatsFacade.receiveMessages(docs)
             }
         }
-        super.onResume()
-    }
-
-    override fun onStart() {
         chatRecyclerAdapter.refresh()
         super.onStart()
     }
@@ -66,17 +67,24 @@ class Chats : Fragment() {
                 bundle.putString(Constants.KEY_USERNAME, it.name)
                 bundle.putString(Constants.KEY_EMAIL, it.email)
                 val intent= Intent(activity, MessagingActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 intent.putExtra(Constants.KEY_REFERENCE,bundle)
                 startActivity(intent)
             }
         }
+        chatRecyclerAdapter.showMenuOptions={
+            mainToolbar.itemSelected()
+        }
+        chatRecyclerAdapter.hideMenuOptions={
+            mainToolbar.itemNotSelected()
+        }
         chatRecyclerAdapter.onLongPressItemClick={chatInfo,selectedItems,adapterRef ->
             if (selectedItems!=0){
-                mainToolbar.itemSelected()
+
                 mainToolbar.deleteSelectedItems(adapterRef)
             }
             else{
-                mainToolbar.itemNotSelected()
+
             }
 
          //   toolbarViewModel.showOptionsForSelectedItems()

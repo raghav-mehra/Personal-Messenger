@@ -47,6 +47,7 @@ class ContactsActivity : AppCompatActivity() {
         contactsRecycler.layoutManager = LinearLayoutManager(this)
         floatingAddButton.setOnClickListener {
             showNextAnimation()
+            toolbar.setTitle(R.string.add_contact)
             viewFlipper.displayedChild = 1
         }
         addButton.setOnClickListener {
@@ -65,7 +66,6 @@ class ContactsActivity : AppCompatActivity() {
                     showPreviousAnimation()
                     viewFlipper.showPrevious()
                     localDb.updateContact(tempContact)
-                    Log.d("Edit","done")
                     contactsAdapter.updateContactList(localDb.getAllContacts())
                     addButton.setText(R.string.add_contact)
                     inputEmail.setText("")
@@ -83,6 +83,7 @@ class ContactsActivity : AppCompatActivity() {
                             )
                         )
                         showPreviousAnimation()
+                        toolbar.setTitle(R.string.contacts)
                         viewFlipper.showPrevious()
                         contactsAdapter.updateContactList(localDb.getAllContacts())
                     }
@@ -92,8 +93,8 @@ class ContactsActivity : AppCompatActivity() {
         contactsAdapter.editContact={
             tempContact=it
             showNextAnimation()
+            toolbar.setTitle(R.string.edit_contact)
             viewFlipper.displayedChild=1
-
             inputName.setText(it.userName)
             inputEmail.setText(it.email)
             addButton.setText(R.string.save)

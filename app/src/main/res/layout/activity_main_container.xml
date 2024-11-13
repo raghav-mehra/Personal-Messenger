@@ -19,6 +19,7 @@
                 android:id="@+id/main_toolbar"
                 android:background="@color/black"
                 app:title="Personal Messenger"
+                app:menu="@menu/main_menu"
                 app:titleTextColor="@color/white"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -54,7 +55,7 @@
         android:layout_gravity="start"
         app:menu="@menu/drawer_menu"
         android:fitsSystemWindows="true"
-        app:itemIconTint="#ffff"
+        app:itemIconTint="@android:color/black"
         app:headerLayout="@layout/nav_header"/>
 
 
