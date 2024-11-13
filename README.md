@@ -12,7 +12,7 @@ TECHNOLOGIES used:
 4. XML
 
 This app contains following FEATURES:
-(i)  Single user to user chatting. You can send images to a user.
+(i)  Single user to user chatting.
 (ii) Highlights(Story) uploading and viewing (of saved contacts).
 (iii) Save your own contacts.
 (iv) Your chats with every user are stored in local database in your phone. You can delete chat with a specific user also.
@@ -27,3 +27,5 @@ Here are some SCREENSHOTS from this app:
 ![Screenshot 2024-11-13 132633](https://github.com/user-attachments/assets/bd2da5bd-299f-4a99-9d39-559df9cd84a2)
 ![Screenshot 2024-11-13 132659](https://github.com/user-attachments/assets/2577abc9-5a17-4d6d-8a58-5fdc984159cb)
 ![Screenshot 2024-11-13 132740](https://github.com/user-attachments/assets/0fcc30f1-531f-46ec-aad8-63440335c5e0)
+![Screenshot 2024-11-13 134228](https://github.com/user-attachments/assets/2f507aca-1b3a-43e7-a3b5-ea341a94fba5)
+![Screenshot 2024-11-13 134354](https://github.com/user-attachments/assets/1581515a-f517-4cc9-886c-8fe3019304f6)
