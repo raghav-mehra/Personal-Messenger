@@ -20,11 +20,10 @@ This app contains following FEATURES:
 (vi) Multiple users can use this application on same device. Each user's chats, contacts are stored in local database of phone. The current active user's chats , contacts (all data) will appear as soon as he/she is signed in.
 
 Here are some SCREENSHOTS from this app:
-![Screenshot_1](https://github.com/raghav-mehra/Personal-Messenger/assets/121507554/6c9d2212-8969-4489-b127-eda2289308eb)
-![Screenshot_2](https://github.com/raghav-mehra/Personal-Messenger/assets/121507554/709694db-1e07-4cd1-848b-a3727b4b53d4)
-![Screenshot_3](https://github.com/raghav-mehra/Personal-Messenger/assets/121507554/9f236007-7df9-4f99-bc34-7d6c0d5401fb)
-![Screenshot_4](https://github.com/raghav-mehra/Personal-Messenger/assets/121507554/746e11a0-9b7b-4a31-bf72-44aef71aac31)
-![Screenshot_5](https://github.com/raghav-mehra/Personal-Messenger/assets/121507554/b8cb34f4-cfc7-44ac-978b-944e600c92e5)
-![Screenshot_6](https://github.com/raghav-mehra/Personal-Messenger/assets/121507554/f9880462-c8bf-48c9-80af-48aec10a6235)
-![Screenshot_7](https://github.com/raghav-mehra/Personal-Messenger/assets/121507554/a97837ef-3b7f-4294-878c-bf76bdad15cc)
 
+![Screenshot 2024-11-13 132505](https://github.com/user-attachments/assets/68ce11e0-7555-44a7-8077-81e7b576b3d9)
+![Screenshot 2024-11-13 132538](https://github.com/user-attachments/assets/89d45654-63a4-4bac-9809-421ef553c084)
+![Screenshot 2024-11-13 132607](https://github.com/user-attachments/assets/1120a0d6-a514-474a-962a-337598902e6c)
+![Screenshot 2024-11-13 132633](https://github.com/user-attachments/assets/bd2da5bd-299f-4a99-9d39-559df9cd84a2)
+![Screenshot 2024-11-13 132659](https://github.com/user-attachments/assets/2577abc9-5a17-4d6d-8a58-5fdc984159cb)
+![Screenshot 2024-11-13 132740](https://github.com/user-attachments/assets/0fcc30f1-531f-46ec-aad8-63440335c5e0)
