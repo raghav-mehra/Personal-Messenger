@@ -3,7 +3,7 @@ This is personal android chatting  application. This application uses firebase f
 Disclaimer:
 (Please do not give any personal information while you use this app. This app is for testing purpose.)
 
-APK LINK: https://drive.google.com/file/d/1fKYl8eVlkgIcdjTyDAsYGoLlyGskIOO7/view?usp=sharing
+APK LINK: https://drive.google.com/file/d/1V82zTWEyfn25V7YDadxGYeyRkfBFQz2X/view?usp=sharing
 
 TECHNOLOGIES used:
 1. Android 
